@@ -21,6 +21,7 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "moduleResolution": "Node"
   }
 }

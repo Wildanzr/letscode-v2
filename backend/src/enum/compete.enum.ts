@@ -1,0 +1,5 @@
+export enum CompeteType {
+  LEARNING = 'LEARNING',
+  COMPETITION = 'COMPETITION',
+  CHALLENGE = 'CHALLENGE',
+}
