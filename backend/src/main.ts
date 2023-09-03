@@ -1,8 +1,9 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ResponseFormater } from './interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,6 +26,10 @@ async function bootstrap() {
     credentials: true,
   };
   app.enableCors(options);
+
+  // Global interceptor to format response
+  const reflector = new Reflector();
+  app.useGlobalInterceptors(new ResponseFormater(reflector));
 
   // Swagger
   const config = new DocumentBuilder()

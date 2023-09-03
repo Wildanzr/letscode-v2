@@ -23,6 +23,7 @@ export class User extends CreateUpdate {
     unique: true,
     index: true,
     lowercase: true,
+    sparse: true,
   })
   username: string;
 
@@ -32,6 +33,7 @@ export class User extends CreateUpdate {
     unique: true,
     default: null,
     lowercase: true,
+    sparse: true,
   })
   email: string;
 
@@ -114,6 +116,7 @@ export class User extends CreateUpdate {
     type: String,
     unique: true,
     default: null,
+    sparse: true,
   })
   google_id: string;
 
@@ -122,6 +125,7 @@ export class User extends CreateUpdate {
     type: String,
     unique: true,
     default: null,
+    sparse: true,
   })
   github_id: string;
 
@@ -130,6 +134,7 @@ export class User extends CreateUpdate {
     type: String,
     unique: true,
     default: null,
+    sparse: true,
   })
   twitter_id: string;
 

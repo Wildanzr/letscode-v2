@@ -10,6 +10,9 @@ import { BadResponse } from '@/dtos/bad.dto';
 import { NotFoundResponse } from '@/dtos/notfound.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RegisterResponseDto } from './dto/register-response.dto';
+import { LoginDto } from './dto/login.dto';
+import { LoginResponseDto } from './dto/login-response.dto copy';
+import { ResponseMessage } from '@/decorators/response.decorator';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -21,7 +24,18 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: RegisterResponseDto })
-  async register(@Body() payload: RegisterDto): Promise<RegisterResponseDto> {
+  @ResponseMessage(
+    'Successfully registered, please check your email to activate your account',
+  )
+  async register(@Body() payload: RegisterDto) {
     return await this.authService.register(payload);
+  }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: LoginResponseDto })
+  async login(@Body() payload: LoginDto) {
+    console.log(payload);
+    return 'Hahaoo';
   }
 }
