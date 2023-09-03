@@ -6,7 +6,7 @@ export class BadResponse {
     type: Number,
     example: 400,
   })
-  statusCode: number;
+  status_code: number;
 
   @ApiProperty({
     description: 'Message of response',

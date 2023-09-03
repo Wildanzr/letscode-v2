@@ -17,3 +17,7 @@ export class LoginResponseDto extends BaseResponse {
   })
   data: Data;
 }
+
+export class LoginResponse {
+  access_token: string;
+}

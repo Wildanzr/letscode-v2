@@ -11,7 +11,7 @@ import { NotFoundResponse } from '@/dtos/notfound.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RegisterResponseDto } from './dto/register-response.dto';
 import { LoginDto } from './dto/login.dto';
-import { LoginResponseDto } from './dto/login-response.dto copy';
+import { LoginResponse, LoginResponseDto } from './dto/login-response.dto';
 import { ResponseMessage } from '@/decorators/response.decorator';
 
 @Controller('auth')
@@ -34,8 +34,8 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: LoginResponseDto })
-  async login(@Body() payload: LoginDto) {
-    console.log(payload);
-    return 'Hahaoo';
+  @ResponseMessage('Successfully logged in')
+  async login(@Body() payload: LoginDto): Promise<LoginResponse> {
+    return await this.authService.login(payload);
   }
 }

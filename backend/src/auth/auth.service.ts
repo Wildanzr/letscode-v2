@@ -1,26 +1,79 @@
 import { User } from '@/schemas/user.schema';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RegisterDto } from './dto/register.dto';
-import { generateHashPassword } from '@/utils/common.util';
+import { comparePassword, generateHashPassword } from '@/utils/common.util';
+import { LoginDto } from './dto/login.dto';
+import { LoginResponse } from './dto/login-response.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private jwtService: JwtService,
+  ) {}
 
   async register(payload: RegisterDto): Promise<void> {
     const { email, username, password } = payload;
     try {
       const check = await this.checkEmailandUsername(email, username);
       if (check) {
-        throw new BadRequestException('Email or username already exists');
+        throw new BadRequestException({
+          status_code: HttpStatus.BAD_REQUEST,
+          message:
+            'Email or username already registered, please login instead!',
+          error: 'Bad Request',
+        });
       }
 
       const hashed = await generateHashPassword(password);
       payload.password = hashed;
 
       await this.userModel.create(payload);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async login(payload: LoginDto): Promise<LoginResponse> {
+    const { username, password } = payload;
+    try {
+      const user = await this.userModel.findOne({
+        $or: [{ username }, { email: username }],
+      });
+      if (!user) {
+        throw new UnauthorizedException({
+          status_code: HttpStatus.UNAUTHORIZED,
+          message: 'Invalid credentials',
+          error: 'Unauthorized',
+        });
+      }
+
+      const isMatch = await comparePassword(password, user.password);
+      if (!isMatch) {
+        throw new UnauthorizedException({
+          status_code: HttpStatus.UNAUTHORIZED,
+          message: 'Invalid credentials',
+          error: 'Unauthorized',
+        });
+      }
+
+      const payload = {
+        id: user._id,
+        username: user.username,
+        roles: user.roles,
+      };
+
+      return {
+        access_token: await this.jwtService.signAsync(payload),
+      };
     } catch (error) {
       throw error;
     }

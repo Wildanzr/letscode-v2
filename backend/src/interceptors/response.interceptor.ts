@@ -21,17 +21,20 @@ export class ResponseFormater<T> implements NestInterceptor<T, Response<T>> {
     next: CallHandler,
   ): Observable<Response<T>> {
     return next.handle().pipe(
-      map((data) => ({
-        status_code: context.switchToHttp().getResponse().statusCode,
-        message:
-          this.reflector.get<string>(
-            'response_message',
-            context.getHandler(),
-          ) ||
-          data.message ||
-          '',
-        data: data ? data.result : {},
-      })),
+      map((data) => {
+        console.log(data);
+        return {
+          status_code: context.switchToHttp().getResponse().statusCode,
+          message:
+            this.reflector.get<string>(
+              'response_message',
+              context.getHandler(),
+            ) ||
+            data.message ||
+            '',
+          data: data ? data : {},
+        };
+      }),
     );
   }
 }
