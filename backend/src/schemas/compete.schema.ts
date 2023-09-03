@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CreateUpdate } from './createupdate.schema';
 import { nanoid } from '@/utils/common.util';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { CompeteType } from '@/enum/compete.enum';
+import { CompeteType } from '@/enums/compete.enum';
 
 export type CompeteDocument = HydratedDocument<Compete>;
 

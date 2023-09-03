@@ -1,5 +1,5 @@
-import { ProviderType } from '@/enum/provider.enum';
-import { UserRoleType } from '@/enum/user.enum';
+import { ProviderType } from '@/enums/provider.enum';
+import { UserRoleType } from '@/enums/user.enum';
 import { generateRandomUserPicture, nanoid } from '@/utils/common.util';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
