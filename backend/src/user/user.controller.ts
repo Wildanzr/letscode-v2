@@ -12,11 +12,20 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ResponseCreateUser } from './dto/response-create-user.dto';
+import { BadResponse } from '@/dtos/bad.dto';
+import { NotFoundResponse } from '@/dtos/notfound.dto';
 
 @Controller('user')
 @ApiTags('User')
+@ApiBadRequestResponse({ type: BadResponse })
+@ApiNotFoundResponse({ type: NotFoundResponse })
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

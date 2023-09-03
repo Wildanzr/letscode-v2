@@ -7,14 +7,12 @@ import { CreateUpdate } from './createupdate.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
-@Schema()
+@Schema({ autoIndex: true })
 export class User extends CreateUpdate {
   @Prop({
     required: false,
     _id: true,
     type: String,
-    unique: true,
-    index: true,
     default: () => `usr-${nanoid(15)}`,
   })
   _id: string;

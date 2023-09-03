@@ -1,4 +1,5 @@
 import { customAlphabet } from 'nanoid';
+import * as bcrypt from 'bcrypt';
 
 export const nanoid = customAlphabet(
   'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
@@ -157,4 +158,11 @@ export const generateRandomUserPicture = (username: string) => {
   }&&eyebrows=${eyebrows[random(eyebrows)]}&&eyes=${eyes[random(eyes)]}&&hair=${
     hair[random(hair)]
   }&&hairColor=${hairColor[random(hairColor)]}&&mouth=${mouth[random(mouth)]}`;
+};
+
+export const generateHashPassword = async (
+  password: string,
+): Promise<string> => {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(password, salt);
 };
