@@ -1,4 +1,4 @@
-import { loggerInfo } from '@/utils/common.util';
+import { loggerError, loggerInfo } from '@/utils/common.util';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { google } from 'googleapis';
@@ -43,7 +43,11 @@ export class MailService {
     this.mailerService.addTransporter('gmail', config);
   }
 
-  public async sendActivationAccount(email: string): Promise<void> {
+  public async sendActivationAccount(
+    email: string,
+    username: string,
+    token: string,
+  ): Promise<void> {
     try {
       await this.setTransport();
       await this.mailerService.sendMail({
@@ -53,15 +57,15 @@ export class MailService {
         subject: 'Activation Account',
         template: 'activation',
         context: {
-          link: 'http://localhost:3000/activate/1234567890',
-          name: 'John Doe',
+          link: `${process.env.FRONTEND_URL as string}/auth/activate/${token}`,
+          name: username,
         },
       });
 
       loggerInfo(`Activation email sent to ${email}`);
+      loggerError(`Activation email sent to ${email}`);
     } catch (error) {
-      // console.error(error);
-      throw error;
+      loggerError(error);
     }
   }
 }

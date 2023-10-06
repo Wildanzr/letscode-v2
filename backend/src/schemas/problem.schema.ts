@@ -1,7 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CreateUpdate } from './createupdate.schema';
 import { nanoid } from '@/utils/common.util';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import { User } from './user.schema';
+import { Test } from './test.schema';
+import { Sample } from './sample.schema';
 
 export type ProblemDocument = HydratedDocument<Problem>;
 
@@ -19,10 +22,15 @@ export class Problem extends CreateUpdate {
 
   @Prop({
     required: true,
-    type: [{ type: mongoose.Schema.Types.String, ref: 'User' }],
+    type: [
+      {
+        type: MongooseSchema.Types.String,
+        ref: User.name,
+      },
+    ],
     default: [],
   })
-  collaborators: string[];
+  collaborators: User[];
 
   @Prop({
     required: true,
@@ -50,17 +58,27 @@ export class Problem extends CreateUpdate {
 
   @Prop({
     required: true,
-    type: [{ type: mongoose.Schema.Types.String, ref: 'Test' }],
+    type: [
+      {
+        type: MongooseSchema.Types.String,
+        ref: Test.name,
+      },
+    ],
     default: [],
   })
-  test_cases: string[];
+  test_cases: Test[];
 
   @Prop({
     required: true,
-    type: [{ type: mongoose.Schema.Types.String, ref: 'Sample' }],
+    type: [
+      {
+        type: MongooseSchema.Types.String,
+        ref: Sample.name,
+      },
+    ],
     default: [],
   })
-  sample_cases: string[];
+  sample_cases: Sample[];
 }
 
 export const ProblemSchema = SchemaFactory.createForClass(Problem);

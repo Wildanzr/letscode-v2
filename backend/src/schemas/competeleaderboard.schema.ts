@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { CreateUpdate } from './createupdate.schema';
 import { nanoid } from '@/utils/common.util';
+import { User } from './user.schema';
+import { Compete } from './compete.schema';
 
 export type CompeteLeaderboardDocument = HydratedDocument<CompeteLeaderboard>;
 
@@ -20,16 +22,22 @@ export class CompeteLeaderboard extends CreateUpdate {
   @Prop({
     required: true,
     index: true,
-    type: { type: mongoose.Schema.Types.String, ref: 'User' },
+    type: {
+      type: MongooseSchema.Types.String,
+      ref: User.name,
+    },
   })
-  user_id: string;
+  user_id: User;
 
   @Prop({
     required: true,
     index: true,
-    type: { type: mongoose.Schema.Types.String, ref: 'Compete' },
+    type: {
+      type: MongooseSchema.Types.String,
+      ref: Compete.name,
+    },
   })
-  compete_id: string;
+  compete_id: Compete;
 
   @Prop({
     required: false,

@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CreateUpdate } from './createupdate.schema';
 import { nanoid } from '@/utils/common.util';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import { Compete } from './compete.schema';
+import { Problem } from './problem.schema';
 
 export type CompeteProblemDocument = HydratedDocument<CompeteProblem>;
 
@@ -20,16 +22,22 @@ export class CompeteProblem extends CreateUpdate {
   @Prop({
     required: true,
     index: true,
-    type: { type: mongoose.Schema.Types.String, ref: 'Compete' },
+    type: {
+      type: MongooseSchema.Types.String,
+      ref: Compete.name,
+    },
   })
-  compete_id: string;
+  compete_id: Compete;
 
   @Prop({
     required: true,
     index: true,
-    type: { type: mongoose.Schema.Types.String, ref: 'Problem' },
+    type: {
+      type: MongooseSchema.Types.String,
+      ref: Problem.name,
+    },
   })
-  problem_id: string;
+  problem_id: Problem;
 }
 
 export const CompeteProblemSchema =

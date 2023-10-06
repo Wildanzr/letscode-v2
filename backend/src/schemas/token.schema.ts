@@ -1,35 +1,29 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { CreateUpdate } from './createupdate.schema';
+import { User } from './user.schema';
 
 export type TokenDocument = HydratedDocument<Token>;
 
-@Schema()
+@Schema({ autoIndex: true })
 export class Token extends CreateUpdate {
   @Prop({
     required: false,
     _id: true,
     type: String,
-    unique: true,
-    index: true,
-    default: () => `tkn-${nanoid(15)}`,
+    default: () => `tkn-${nanoid(60)}`,
   })
   _id: string;
 
   @Prop({
-    required: true,
-    type: { type: mongoose.Schema.Types.String, ref: 'User' },
+    type: {
+      type: MongooseSchema.Types.String,
+      ref: User.name,
+      required: true,
+    },
   })
-  user_id: string;
-
-  @Prop({
-    required: true,
-    type: String,
-    unique: true,
-    index: true,
-  })
-  token: string;
+  user_id: User;
 }
 
 export const TokenSchema = SchemaFactory.createForClass(Token);

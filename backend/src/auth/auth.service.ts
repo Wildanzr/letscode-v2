@@ -14,16 +14,18 @@ import { LoginDto } from './dto/login.dto';
 import { LoginResponse } from './dto/login-response.dto';
 import { RegisterResponse } from './dto/register-response.dto';
 import { MailService } from '@/mail/mail.service';
+import { Token } from '@/schemas/token.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
+    // @InjectModel(Token.name) private tokenModel: Model<Token>,
     private jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
 
-  async register(payload: RegisterDto): Promise<RegisterResponse> {
+  public async register(payload: RegisterDto): Promise<RegisterResponse> {
     const { email, username, password } = payload;
     try {
       const check = await this.checkEmailandUsername(email, username);
@@ -39,8 +41,9 @@ export class AuthService {
       const hashed = await generateHashPassword(password);
       payload.password = hashed;
 
-      await this.userModel.create(payload);
-      await this.mailService.sendActivationAccount(email);
+      const user = await this.userModel.create(payload);
+      // const token = await this.generateToken(user._id);
+      // await this.mailService.sendActivationAccount(email, username, token);
 
       return;
     } catch (error) {
@@ -48,7 +51,7 @@ export class AuthService {
     }
   }
 
-  async login(payload: LoginDto): Promise<LoginResponse> {
+  public async login(payload: LoginDto): Promise<LoginResponse> {
     const { username, password } = payload;
     try {
       const user = await this.userModel.findOne({
@@ -85,7 +88,7 @@ export class AuthService {
     }
   }
 
-  async checkEmailandUsername(
+  private async checkEmailandUsername(
     email: string,
     username: string,
   ): Promise<boolean> {
@@ -101,4 +104,13 @@ export class AuthService {
       throw error;
     }
   }
+
+  // private async generateToken(user_id: string): Promise<string> {
+  //   try {
+  //     const token = await this.tokenModel.create({ user_id });
+  //     return token._id;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 }
