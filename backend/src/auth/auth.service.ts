@@ -12,6 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import { comparePassword, generateHashPassword } from '@/utils/common.util';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponse } from './dto/login-response.dto';
+import { RegisterResponse } from './dto/register-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(payload: RegisterDto): Promise<void> {
+  async register(payload: RegisterDto): Promise<RegisterResponse> {
     const { email, username, password } = payload;
     try {
       const check = await this.checkEmailandUsername(email, username);
@@ -37,6 +38,8 @@ export class AuthService {
       payload.password = hashed;
 
       await this.userModel.create(payload);
+
+      return;
     } catch (error) {
       throw error;
     }

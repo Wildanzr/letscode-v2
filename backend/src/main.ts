@@ -31,6 +31,9 @@ async function bootstrap() {
   const reflector = new Reflector();
   app.useGlobalInterceptors(new ResponseFormater(reflector));
 
+  // Global prefix
+  app.setGlobalPrefix('api/v1');
+
   // Swagger
   const config = new DocumentBuilder()
     .setTitle('LetsCode V2')
@@ -44,9 +47,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
-
-  // Global prefix
-  // app.setGlobalPrefix('api/v2');
 
   const PORT = process.env.PORT || 3000;
   await app.listen(PORT, () => {

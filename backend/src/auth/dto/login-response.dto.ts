@@ -1,7 +1,7 @@
 import { BaseResponse } from '@/dtos/response.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-class Data {
+class LoginData {
   @ApiProperty({
     description: 'Access token',
     type: String,
@@ -13,9 +13,9 @@ class Data {
 export class LoginResponseDto extends BaseResponse {
   @ApiProperty({
     description: 'Data of response',
-    type: Data,
+    type: LoginData,
   })
-  data: Data;
+  data: LoginData;
 }
 
 export class LoginResponse {
