@@ -13,12 +13,14 @@ import { comparePassword, generateHashPassword } from '@/utils/common.util';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponse } from './dto/login-response.dto';
 import { RegisterResponse } from './dto/register-response.dto';
+import { MailService } from '@/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async register(payload: RegisterDto): Promise<RegisterResponse> {
@@ -38,6 +40,7 @@ export class AuthService {
       payload.password = hashed;
 
       await this.userModel.create(payload);
+      await this.mailService.sendActivationAccount(email);
 
       return;
     } catch (error) {

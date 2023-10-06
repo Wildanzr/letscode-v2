@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ResponseFormater } from './interceptors/response.interceptor';
+import { loggerInfo } from './utils/common.util';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -50,7 +51,7 @@ async function bootstrap() {
 
   const PORT = process.env.PORT || 3000;
   await app.listen(PORT, () => {
-    console.log(`Listening on port: ${PORT}`);
+    loggerInfo(`Listening on port: ${PORT}`);
   });
 }
 bootstrap();

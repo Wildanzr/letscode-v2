@@ -22,7 +22,7 @@ export class ResponseFormater<T> implements NestInterceptor<T, Response<T>> {
   ): Observable<Response<T>> {
     return next.handle().pipe(
       map((data) => {
-        console.log(data);
+        // console.log(data);
         return {
           status_code: context.switchToHttp().getResponse().statusCode,
           message:
