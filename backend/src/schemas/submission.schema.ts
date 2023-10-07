@@ -1,29 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CreateUpdate } from './createupdate.schema';
-import { nanoid } from '@/utils/common.util';
-import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from './user.schema';
-
-export type SubmissionDocument = HydratedDocument<Submission>;
 
 @Schema()
 export class Submission extends CreateUpdate {
   @Prop({
-    required: false,
-    _id: true,
-    type: String,
-    unique: true,
-    index: true,
-    default: () => `sbm-${nanoid(15)}`,
-  })
-  _id: string;
-
-  @Prop({
     required: true,
-    index: true,
-    type: { type: MongooseSchema.Types.String, ref: User.name },
+    type: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: User.name,
+    },
   })
-  user_id: User;
+  user: User;
 
   @Prop({
     required: true,
@@ -52,4 +41,5 @@ export class Submission extends CreateUpdate {
   points: number;
 }
 
+export type SubmissionDocument = HydratedDocument<Submission>;
 export const SubmissionSchema = SchemaFactory.createForClass(Submission);

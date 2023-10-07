@@ -1,30 +1,17 @@
-import { nanoid } from '@/utils/common.util';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { CreateUpdate } from './createupdate.schema';
 import { User } from './user.schema';
-
-export type ActiveUserDocument = HydratedDocument<ActiveUser>;
 
 @Schema()
 export class ActiveUser extends CreateUpdate {
   @Prop({
-    required: false,
-    _id: true,
-    type: String,
-    unique: true,
-    index: true,
-    default: () => `act-${nanoid(15)}`,
-  })
-  _id: string;
-
-  @Prop({
     type: {
-      type: MongooseSchema.Types.String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: User.name,
     },
   })
-  user_id: User;
+  user: User;
 
   @Prop({
     required: true,
@@ -35,4 +22,5 @@ export class ActiveUser extends CreateUpdate {
   socket_id: string;
 }
 
+export type ActiveUserDocument = HydratedDocument<ActiveUser>;
 export const ActiveUserSchema = SchemaFactory.createForClass(ActiveUser);

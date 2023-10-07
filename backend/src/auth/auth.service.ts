@@ -20,7 +20,7 @@ import { Token } from '@/schemas/token.schema';
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    // @InjectModel(Token.name) private tokenModel: Model<Token>,
+    @InjectModel(Token.name) private tokenModel: Model<Token>,
     private jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
@@ -42,7 +42,14 @@ export class AuthService {
       payload.password = hashed;
 
       const user = await this.userModel.create(payload);
-      // const token = await this.generateToken(user._id);
+      const token = await this.generateToken(user);
+
+      const details = await this.tokenModel
+        .findById(token)
+        .populate('user_id', 'username email')
+        .exec();
+
+      console.log(details);
       // await this.mailService.sendActivationAccount(email, username, token);
 
       return;
@@ -105,12 +112,14 @@ export class AuthService {
     }
   }
 
-  // private async generateToken(user_id: string): Promise<string> {
-  //   try {
-  //     const token = await this.tokenModel.create({ user_id });
-  //     return token._id;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
+  private async generateToken(user: User): Promise<string> {
+    try {
+      const token = await this.tokenModel.create({
+        user_id: user._id,
+      });
+      return token._id;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

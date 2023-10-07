@@ -1,39 +1,31 @@
 import { ProviderType } from '@/enums/provider.enum';
 import { UserRoleType } from '@/enums/user.enum';
-import { generateRandomUserPicture, nanoid } from '@/utils/common.util';
+import { generateRandomUserPicture } from '@/utils/common.util';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { CreateUpdate } from './createupdate.schema';
 
-export type UserDocument = HydratedDocument<User>;
-
-@Schema({ autoIndex: true })
+@Schema()
 export class User extends CreateUpdate {
-  @Prop({
-    required: false,
-    _id: true,
-    type: String,
-    default: () => `usr-${nanoid(15)}`,
-  })
-  _id: string;
-
   @Prop({
     required: true,
     type: String,
     unique: true,
     index: true,
     lowercase: true,
-    sparse: true,
   })
   username: string;
 
   @Prop({
     required: false,
     type: String,
-    unique: true,
-    default: null,
     lowercase: true,
-    sparse: true,
+    index: {
+      unique: true,
+      sparse: true,
+      partialFilterExpression: { email: { $type: 'string' } },
+    },
+    default: null,
   })
   email: string;
 
@@ -52,7 +44,7 @@ export class User extends CreateUpdate {
   fullname: string;
 
   @Prop({
-    required: true,
+    required: false,
     type: String,
     default: (user: User) => {
       return generateRandomUserPicture(user.username);
@@ -61,7 +53,7 @@ export class User extends CreateUpdate {
   avatar: string;
 
   @Prop({
-    required: true,
+    required: false,
     type: [String],
     enum: UserRoleType,
     default: [UserRoleType.STUDENT],
@@ -114,27 +106,36 @@ export class User extends CreateUpdate {
   @Prop({
     required: false,
     type: String,
-    unique: true,
+    index: {
+      unique: true,
+      sparse: true,
+      partialFilterExpression: { google_id: { $type: 'string' } },
+    },
     default: null,
-    sparse: true,
   })
   google_id: string;
 
   @Prop({
     required: false,
     type: String,
-    unique: true,
+    index: {
+      unique: true,
+      sparse: true,
+      partialFilterExpression: { github_id: { $type: 'string' } },
+    },
     default: null,
-    sparse: true,
   })
   github_id: string;
 
   @Prop({
     required: false,
     type: String,
-    unique: true,
+    index: {
+      unique: true,
+      sparse: true,
+      partialFilterExpression: { twitter_id: { $type: 'string' } },
+    },
     default: null,
-    sparse: true,
   })
   twitter_id: string;
 
@@ -146,4 +147,5 @@ export class User extends CreateUpdate {
   points: number;
 }
 
+export type UserDocument = HydratedDocument<User>;
 export const UserSchema = SchemaFactory.createForClass(User);

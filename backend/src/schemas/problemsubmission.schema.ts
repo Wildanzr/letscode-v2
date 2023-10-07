@@ -1,42 +1,27 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CreateUpdate } from './createupdate.schema';
-import { nanoid } from '@/utils/common.util';
-import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from './user.schema';
 import { CompeteProblem } from './competeproblem.schema';
 import { Submission } from './submission.schema';
 
-export type ProblemSubmissionDocument = HydratedDocument<ProblemSubmission>;
-
 @Schema()
 export class ProblemSubmission extends CreateUpdate {
   @Prop({
-    required: false,
-    _id: true,
-    type: String,
-    unique: true,
-    index: true,
-    default: () => `psb-${nanoid(15)}`,
+    required: true,
+    type: { type: mongoose.Schema.Types.ObjectId, ref: User.name },
   })
-  _id: string;
+  user: User;
 
   @Prop({
     required: true,
-    index: true,
-    type: { type: MongooseSchema.Types.String, ref: User.name },
+    type: { type: mongoose.Schema.Types.ObjectId, ref: CompeteProblem.name },
   })
-  user_id: User;
-
-  @Prop({
-    required: true,
-    index: true,
-    type: { type: MongooseSchema.Types.String, ref: CompeteProblem.name },
-  })
-  compete_problem_id: CompeteProblem;
+  compete_problem: CompeteProblem;
 
   @Prop({
     required: false,
-    type: [{ type: MongooseSchema.Types.String, ref: Submission.name }],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Submission.name }],
     default: [],
   })
   submissions: Submission[];
@@ -49,5 +34,6 @@ export class ProblemSubmission extends CreateUpdate {
   current_points: number;
 }
 
+export type ProblemSubmissionDocument = HydratedDocument<ProblemSubmission>;
 export const ProblemSubmissionSchema =
   SchemaFactory.createForClass(ProblemSubmission);

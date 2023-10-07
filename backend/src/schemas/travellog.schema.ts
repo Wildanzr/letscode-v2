@@ -1,27 +1,14 @@
-import { nanoid } from '@/utils/common.util';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from './user.schema';
-
-export type TravelLogDocument = HydratedDocument<TravelLog>;
 
 @Schema()
 export class TravelLog {
   @Prop({
-    required: false,
-    _id: true,
-    type: String,
-    unique: true,
-    index: true,
-    default: () => `trv-${nanoid(15)}`,
-  })
-  _id: string;
-
-  @Prop({
     required: true,
-    type: { type: MongooseSchema.Types.String, ref: User.name },
+    type: { type: mongoose.Schema.Types.ObjectId, ref: User.name },
   })
-  user_id: User;
+  user: User;
 
   @Prop({
     required: true,
@@ -48,4 +35,5 @@ export class TravelLog {
   to: Date;
 }
 
+export type TravelLogDocument = HydratedDocument<TravelLog>;
 export const TravelLogSchema = SchemaFactory.createForClass(TravelLog);

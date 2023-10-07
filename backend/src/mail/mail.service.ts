@@ -63,7 +63,6 @@ export class MailService {
       });
 
       loggerInfo(`Activation email sent to ${email}`);
-      loggerError(`Activation email sent to ${email}`);
     } catch (error) {
       loggerError(error);
     }

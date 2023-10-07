@@ -1,22 +1,9 @@
-import { nanoid } from '@/utils/common.util';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CreateUpdate } from './createupdate.schema';
 import { HydratedDocument } from 'mongoose';
 
-export type TestDocument = HydratedDocument<Test>;
-
 @Schema()
 export class Test extends CreateUpdate {
-  @Prop({
-    required: false,
-    _id: true,
-    type: String,
-    unique: true,
-    index: true,
-    default: () => `tes-${nanoid(15)}`,
-  })
-  _id: string;
-
   @Prop({
     required: false,
     type: String,
@@ -30,4 +17,5 @@ export class Test extends CreateUpdate {
   output: string;
 }
 
+export type TestDocument = HydratedDocument<Test>;
 export const TestSchema = SchemaFactory.createForClass(Test);
