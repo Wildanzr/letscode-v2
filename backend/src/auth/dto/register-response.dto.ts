@@ -10,5 +10,3 @@ export class RegisterResponseDto extends BaseResponse {
   })
   data: LoginData;
 }
-
-export class RegisterResponse {}

@@ -1,4 +1,4 @@
-import { User } from '@/schemas/user.schema';
+import { User, UserDocument } from '@/schemas/user.schema';
 import {
   BadRequestException,
   HttpStatus,
@@ -6,27 +6,40 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import mongoose, { Model, mongo } from 'mongoose';
 import { RegisterDto } from './dto/register.dto';
 import { comparePassword, generateHashPassword } from '@/utils/common.util';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponse } from './dto/login-response.dto';
-import { RegisterResponse } from './dto/register-response.dto';
 import { MailService } from '@/mail/mail.service';
-import { Token } from '@/schemas/token.schema';
+import { Token, TokenDocument } from '@/schemas/token.schema';
+import { NoDataResponse } from '@/dtos/nodata-response.dto';
+import { UserService } from '@/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Token.name) private tokenModel: Model<Token>,
-    private jwtService: JwtService,
+    @InjectConnection() private connection: mongoose.Connection,
+    private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly userService: UserService,
   ) {}
 
-  public async register(payload: RegisterDto): Promise<RegisterResponse> {
+  public async register(payload: RegisterDto): Promise<NoDataResponse> {
+    /* Flow register
+    1. Check email and username is already exist or not
+    2. Hash password
+    3. Create user
+    4. Generate token
+    5. Send email activation
+    */
+
     const { email, username, password } = payload;
+    const session = await this.connection.startSession();
+    session.startTransaction();
     try {
       const check = await this.checkEmailandUsername(email, username);
       if (check) {
@@ -41,20 +54,19 @@ export class AuthService {
       const hashed = await generateHashPassword(password);
       payload.password = hashed;
 
-      const user = await this.userModel.create(payload);
-      const token = await this.generateToken(user);
-
-      const details = await this.tokenModel
-        .findById(token)
-        .populate('user_id', 'username email')
-        .exec();
-
-      console.log(details);
-      // await this.mailService.sendActivationAccount(email, username, token);
-
+      const user = await this.userService.createUserFromRegister(
+        payload,
+        session,
+      );
+      const token = await this.generateToken(user, session);
+      await this.mailService.sendActivationAccount(email, username, token);
+      await session.commitTransaction();
       return;
     } catch (error) {
+      await session.abortTransaction();
       throw error;
+    } finally {
+      session.endSession();
     }
   }
 
@@ -112,13 +124,19 @@ export class AuthService {
     }
   }
 
-  private async generateToken(user: User): Promise<string> {
+  private async generateToken(
+    user: UserDocument,
+    session: mongoose.ClientSession | null = null,
+  ): Promise<string> {
     try {
-      const token = await this.tokenModel.create({
-        user_id: user._id,
+      await this.tokenModel.deleteMany({ user: user._id }).session(session);
+      const token = await this.tokenModel.create([{ user: user._id }], {
+        session,
       });
-      return token._id;
+
+      return token[0].key;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }

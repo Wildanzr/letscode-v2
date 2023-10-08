@@ -9,13 +9,11 @@ import {
 import { BadResponse } from '@/dtos/bad.dto';
 import { NotFoundResponse } from '@/dtos/notfound.dto';
 import { RegisterDto } from './dto/register.dto';
-import {
-  RegisterResponse,
-  RegisterResponseDto,
-} from './dto/register-response.dto';
+import { RegisterResponseDto } from './dto/register-response.dto';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponse, LoginResponseDto } from './dto/login-response.dto';
 import { ResponseMessage } from '@/decorators/response.decorator';
+import { NoDataResponse } from '@/dtos/nodata-response.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -30,7 +28,7 @@ export class AuthController {
   @ResponseMessage(
     'Successfully registered, please check your email to activate your account',
   )
-  async register(@Body() payload: RegisterDto): Promise<RegisterResponse> {
+  async register(@Body() payload: RegisterDto): Promise<NoDataResponse> {
     return await this.authService.register(payload);
   }
 

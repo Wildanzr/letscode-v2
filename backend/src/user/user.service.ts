@@ -1,32 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ResponseCreateUser } from './dto/response-create-user.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from '@/schemas/user.schema';
+import mongoose, { Model } from 'mongoose';
+import { RegisterDto } from '@/auth/dto/register.dto';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto): ResponseCreateUser {
-    const result = {
-      status_code: 200,
-      message: 'Success',
-      data: createUserDto,
-    };
-    return result;
-  }
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  findAll() {
-    return `This action returns all user`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  public async createUserFromRegister(
+    payload: RegisterDto,
+    session: mongoose.ClientSession | null = null,
+  ): Promise<UserDocument> {
+    try {
+      const user = await this.userModel.create([payload], { session });
+      return user[0];
+    } catch (error) {
+      throw error;
+    }
   }
 }
