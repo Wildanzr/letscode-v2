@@ -29,6 +29,10 @@ import { AuthMeResponse, AuthMeResponseDto } from './dto/authme-response.dto';
 import { JwtAuthGuard } from '@/guard/jwt-auth.guard';
 import { Request as ExRequest } from 'express';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import {
+  CheckTokenResponse,
+  CheckTokenResponseDto,
+} from './dto/check-token-response.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -82,5 +86,13 @@ export class AuthController {
   @ResponseMessage('Successfully verified')
   async verifyAccount(@Param('token') token: string): Promise<NoDataResponse> {
     return await this.authService.activateAccount(token);
+  }
+
+  @Get('check-token/:token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: CheckTokenResponseDto })
+  @ResponseMessage('Successfully check token')
+  async checkToken(@Param('token') token: string): Promise<CheckTokenResponse> {
+    return await this.authService.checkToken(token);
   }
 }

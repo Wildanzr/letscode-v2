@@ -19,6 +19,7 @@ import { NoDataResponse } from '@/dtos/nodata-response.dto';
 import { UserService } from '@/user/user.service';
 import { AuthMeResponse } from './dto/authme-response.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { CheckTokenResponse } from './dto/check-token-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -198,6 +199,29 @@ export class AuthService {
       this.mailService.sendResetPassword(email, user.username, link);
 
       return;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async checkToken(key: string): Promise<CheckTokenResponse> {
+    /* Flow check token
+    1. Find token
+    2. Return valid or not
+    */
+
+    try {
+      const token = await this.tokenModel.findOne({ key }).exec();
+
+      if (!token) {
+        return {
+          valid: false,
+        };
+      }
+
+      return {
+        valid: true,
+      };
     } catch (error) {
       throw error;
     }
