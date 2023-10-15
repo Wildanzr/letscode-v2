@@ -1,4 +1,9 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '@/schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
@@ -6,6 +11,7 @@ import { RegisterDto } from '@/auth/dto/register.dto';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   public async createUserFromRegister(
@@ -46,6 +52,21 @@ export class UserService {
       }
 
       return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async activateUser(
+    _id: string,
+    session: mongoose.ClientSession | null = null,
+  ): Promise<void> {
+    try {
+      await this.userModel.findByIdAndUpdate(
+        _id,
+        { email_verified: true, updated_at: new Date() },
+        { session, new: true },
+      );
     } catch (error) {
       throw error;
     }

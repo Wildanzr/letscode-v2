@@ -3,6 +3,7 @@ import {
   BadRequestException,
   HttpStatus,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -13,15 +14,15 @@ import { comparePassword, generateHashPassword } from '@/utils/common.util';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponse } from './dto/login-response.dto';
 import { MailService } from '@/mail/mail.service';
-import { Token } from '@/schemas/token.schema';
+import { Token, TokenDocument } from '@/schemas/token.schema';
 import { NoDataResponse } from '@/dtos/nodata-response.dto';
 import { UserService } from '@/user/user.service';
 import { AuthMeResponse } from './dto/authme-response.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Token.name) private tokenModel: Model<Token>,
     @InjectConnection() private connection: mongoose.Connection,
     private readonly jwtService: JwtService,
@@ -119,6 +120,10 @@ export class AuthService {
   }
 
   public async me(_id: string): Promise<AuthMeResponse> {
+    /* Flow my profile
+    1. Find user by id
+    2. Return user data
+    */
     try {
       const user = await this.userService.getUserById(_id);
 
@@ -141,6 +146,33 @@ export class AuthService {
     }
   }
 
+  public async activateAccount(key: string): Promise<NoDataResponse> {
+    /* Flow activate account
+    1. Find token
+    2. Find user by id
+    3. Update user
+    4. Delete token
+    */
+
+    const session = await this.connection.startSession();
+    session.startTransaction();
+    try {
+      const token = await this.findTokenByKey(key);
+      await this.userService.activateUser(
+        token.user['_id'].toString(),
+        session,
+      );
+      await this.tokenModel.deleteOne({ _id: token._id }).session(session);
+      await session.commitTransaction();
+      return;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
   private async generateToken(
     user: UserDocument,
     session: mongoose.ClientSession | null = null,
@@ -154,6 +186,27 @@ export class AuthService {
       return token[0].key;
     } catch (error) {
       console.log(error);
+      throw error;
+    }
+  }
+
+  private async findTokenByKey(key: string): Promise<TokenDocument> {
+    try {
+      const token = await this.tokenModel
+        .findOne({ key })
+        .populate({ path: 'user', select: '_id username' })
+        .exec();
+
+      if (!token) {
+        throw new BadRequestException({
+          status_code: HttpStatus.BAD_REQUEST,
+          message: 'Invalid token',
+          error: 'Bad Request',
+        });
+      }
+
+      return token;
+    } catch (error) {
       throw error;
     }
   }

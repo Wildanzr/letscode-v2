@@ -8,6 +8,7 @@ import {
   Request,
   Post,
   UseGuards,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -62,5 +63,13 @@ export class AuthController {
   async authMe(@Request() req: ExRequest): Promise<AuthMeResponse> {
     const { _id } = req.user as { _id: string };
     return this.authService.me(_id);
+  }
+
+  @Get('verify/:token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: NoDataResponse })
+  @ResponseMessage('Successfully verified')
+  async verifyAccount(@Param('token') token: string): Promise<NoDataResponse> {
+    return await this.authService.activateAccount(token);
   }
 }
