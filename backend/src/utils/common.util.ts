@@ -174,31 +174,3 @@ export const comparePassword = async (
 ): Promise<boolean> => {
   return await bcrypt.compare(password, hash);
 };
-
-export const loggerInfo = (data: any) => {
-  // check if data is primitive
-  if (
-    typeof data === 'string' ||
-    typeof data === 'number' ||
-    typeof data === 'boolean'
-  ) {
-    console.log(`[LOG] ${new Date().toISOString()}`, data);
-  } else {
-    console.log(`[LOG] ${new Date().toISOString()}`);
-    console.log(data);
-  }
-};
-
-export const loggerError = (data: any) => {
-  // check if data is primitive
-  if (
-    typeof data === 'string' ||
-    typeof data === 'number' ||
-    typeof data === 'boolean'
-  ) {
-    console.error(`[ERROR] ${new Date().toISOString()}`, data);
-  } else {
-    console.error(`[ERROR] ${new Date().toISOString()}`);
-    console.error(data);
-  }
-};

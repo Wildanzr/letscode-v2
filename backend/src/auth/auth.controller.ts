@@ -28,6 +28,7 @@ import { NoDataResponse } from '@/dtos/nodata-response.dto';
 import { AuthMeResponse, AuthMeResponseDto } from './dto/authme-response.dto';
 import { JwtAuthGuard } from '@/guard/jwt-auth.guard';
 import { Request as ExRequest } from 'express';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -53,6 +54,16 @@ export class AuthController {
   @ResponseMessage('Successfully logged in')
   async login(@Body() payload: LoginDto): Promise<LoginResponse> {
     return await this.authService.login(payload);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: NoDataResponse })
+  @ResponseMessage('Successfully sent reset password instruction to your email')
+  async forgotPassword(
+    @Body() payload: ForgotPasswordDto,
+  ): Promise<NoDataResponse> {
+    return await this.authService.forgotPassword(payload);
   }
 
   @Get('me')

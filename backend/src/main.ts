@@ -1,12 +1,12 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ResponseFormater } from './interceptors/response.interceptor';
-import { loggerInfo } from './utils/common.util';
 
 async function bootstrap() {
+  const logger = new Logger('Main');
   const app = await NestFactory.create(AppModule);
 
   // Validation
@@ -51,7 +51,7 @@ async function bootstrap() {
 
   const PORT = process.env.PORT || 3000;
   await app.listen(PORT, () => {
-    loggerInfo(`Listening on port: ${PORT}`);
+    logger.log(`Server running on port ${PORT}`);
   });
 }
 bootstrap();

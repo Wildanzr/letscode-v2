@@ -31,9 +31,19 @@ export class UserService {
     username: string,
   ): Promise<UserDocument> {
     try {
-      return await this.userModel.findOne({
+      const user = await this.userModel.findOne({
         $or: [{ email }, { username }],
       });
+
+      if (!user) {
+        throw new NotFoundException({
+          status_code: HttpStatus.NOT_FOUND,
+          message: 'User not found',
+          error: 'Not Found',
+        });
+      }
+
+      return user;
     } catch (error) {
       throw error;
     }

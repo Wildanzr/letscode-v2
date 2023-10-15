@@ -1,11 +1,11 @@
-import { loggerError, loggerInfo } from '@/utils/common.util';
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { google } from 'googleapis';
 import { Options } from 'nodemailer/lib/smtp-transport';
 
 @Injectable()
 export class MailService {
+  private readonly logger = new Logger(MailService.name);
   constructor(private readonly mailerService: MailerService) {}
 
   private async setTransport(): Promise<void> {
@@ -62,9 +62,34 @@ export class MailService {
         },
       });
 
-      loggerInfo(`Activation email sent to ${email}`);
+      this.logger.log(`Activation email sent to ${email}`);
     } catch (error) {
-      loggerError(error);
+      this.logger.error(error);
+    }
+  }
+
+  public async sendResetPassword(
+    email: string,
+    username: string,
+    link: string,
+  ): Promise<void> {
+    try {
+      await this.setTransport();
+      await this.mailerService.sendMail({
+        transporterName: 'gmail',
+        to: email,
+        from: process.env.GOOGLE_EMAIL as string,
+        subject: 'Reset Password Instruction',
+        template: 'reset',
+        context: {
+          link,
+          name: username,
+        },
+      });
+
+      this.logger.log(`Reset password email sent to ${email}`);
+    } catch (error) {
+      this.logger.error(error);
     }
   }
 }

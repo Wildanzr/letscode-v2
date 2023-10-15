@@ -18,6 +18,7 @@ import { Token, TokenDocument } from '@/schemas/token.schema';
 import { NoDataResponse } from '@/dtos/nodata-response.dto';
 import { UserService } from '@/user/user.service';
 import { AuthMeResponse } from './dto/authme-response.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -64,7 +65,7 @@ export class AuthService {
         session,
       );
       const token = await this.generateToken(user, session);
-      await this.mailService.sendActivationAccount(email, username, token);
+      this.mailService.sendActivationAccount(email, username, token);
       await session.commitTransaction();
       return;
     } catch (error) {
@@ -170,6 +171,35 @@ export class AuthService {
       throw error;
     } finally {
       session.endSession();
+    }
+  }
+
+  public async forgotPassword(
+    payload: ForgotPasswordDto,
+  ): Promise<NoDataResponse> {
+    /* Flow forgot password
+    1. Find user by email
+    2. Generate token
+    3. Build link
+    4. Send email reset password
+    */
+
+    const { email } = payload;
+    try {
+      const user = await this.userService.findUserByEmailOrUsername(
+        email,
+        email,
+      );
+
+      const token = await this.generateToken(user);
+      const link = `${
+        process.env.FRONTEND_URL as string
+      }/auth/reset-password/${token}}`;
+      this.mailService.sendResetPassword(email, user.username, link);
+
+      return;
+    } catch (error) {
+      throw error;
     }
   }
 
