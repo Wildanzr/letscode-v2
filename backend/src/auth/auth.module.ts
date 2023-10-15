@@ -8,6 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { MailService } from '@/mail/mail.service';
 import { UserService } from '@/user/user.service';
+import { JwtStrategy } from '@/guard/jwt.strategy';
 
 @Module({
   imports: [
@@ -16,15 +17,17 @@ import { UserService } from '@/user/user.service';
       { name: Token.name, schema: TokenSchema },
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'secret',
-      signOptions: {
-        expiresIn: '7d',
-        algorithm: 'HS256',
-      },
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: process.env.JWT_SECRET || 'secret',
+        signOptions: {
+          expiresIn: '7d',
+          algorithm: 'HS256',
+        },
+      }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, MailService, UserService],
+  providers: [AuthService, MailService, UserService, JwtStrategy],
 })
 export class AuthModule {}

@@ -1,4 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Request,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   ApiBadRequestResponse,
@@ -14,12 +24,16 @@ import { LoginDto } from './dto/login.dto';
 import { LoginResponse, LoginResponseDto } from './dto/login-response.dto';
 import { ResponseMessage } from '@/decorators/response.decorator';
 import { NoDataResponse } from '@/dtos/nodata-response.dto';
+import { AuthMeResponse, AuthMeResponseDto } from './dto/authme-response.dto';
+import { JwtAuthGuard } from '@/guard/jwt-auth.guard';
+import { Request as ExRequest } from 'express';
 
 @Controller('auth')
 @ApiTags('Auth')
 @ApiBadRequestResponse({ type: BadResponse })
 @ApiNotFoundResponse({ type: NotFoundResponse })
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
@@ -38,5 +52,15 @@ export class AuthController {
   @ResponseMessage('Successfully logged in')
   async login(@Body() payload: LoginDto): Promise<LoginResponse> {
     return await this.authService.login(payload);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: AuthMeResponseDto })
+  @ResponseMessage('Successfully get user data')
+  async authMe(@Request() req: ExRequest): Promise<AuthMeResponse> {
+    this.logger.log(req.user);
+    return req.user as any;
   }
 }

@@ -7,15 +7,16 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, mongo } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { RegisterDto } from './dto/register.dto';
 import { comparePassword, generateHashPassword } from '@/utils/common.util';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponse } from './dto/login-response.dto';
 import { MailService } from '@/mail/mail.service';
-import { Token, TokenDocument } from '@/schemas/token.schema';
+import { Token } from '@/schemas/token.schema';
 import { NoDataResponse } from '@/dtos/nodata-response.dto';
 import { UserService } from '@/user/user.service';
+import { AuthMeResponse } from './dto/authme-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -41,7 +42,10 @@ export class AuthService {
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
-      const check = await this.checkEmailandUsername(email, username);
+      const check = await this.userService.findUserByEmailOrUsername(
+        email,
+        username,
+      );
       if (check) {
         throw new BadRequestException({
           status_code: HttpStatus.BAD_REQUEST,
@@ -71,11 +75,18 @@ export class AuthService {
   }
 
   public async login(payload: LoginDto): Promise<LoginResponse> {
+    /* Flow login
+    1. Find user by username or email
+    2. Compare password
+    3. Generate jwt token
+    */
     const { username, password } = payload;
+    const email = username;
     try {
-      const user = await this.userModel.findOne({
-        $or: [{ username }, { email: username }],
-      });
+      const user = await this.userService.findUserByEmailOrUsername(
+        email,
+        username,
+      );
       if (!user) {
         throw new UnauthorizedException({
           status_code: HttpStatus.UNAUTHORIZED,
@@ -94,7 +105,7 @@ export class AuthService {
       }
 
       const payload = {
-        id: user._id,
+        _id: user._id,
         username: user.username,
         roles: user.roles,
       };
@@ -107,18 +118,17 @@ export class AuthService {
     }
   }
 
-  private async checkEmailandUsername(
-    email: string,
-    username: string,
-  ): Promise<boolean> {
+  public async me(_id: string): Promise<AuthMeResponse> {
     try {
-      const user = await this.userModel.findOne({
-        $or: [{ email }, { username }],
-      });
-      if (user) {
-        return true;
-      }
-      return false;
+      const user = await this.userService.getUserById(_id);
+
+      return {
+        _id: user._id.toString(),
+        username: user.username,
+        email: user.email,
+        fullname: user.fullname,
+        roles: user.roles,
+      };
     } catch (error) {
       throw error;
     }

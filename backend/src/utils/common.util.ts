@@ -1,5 +1,6 @@
 import { customAlphabet } from 'nanoid';
 import * as bcrypt from 'bcrypt';
+import { Logger } from '@nestjs/common';
 
 export const nanoid = customAlphabet(
   'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
