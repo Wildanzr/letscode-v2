@@ -125,9 +125,16 @@ export class AuthService {
       return {
         _id: user._id.toString(),
         username: user.username,
-        email: user.email,
         fullname: user.fullname,
+        points: user.points,
+        avatar: user.avatar,
         roles: user.roles,
+        email: user.email,
+        address: user.address,
+        bio: user.bio,
+        github: user.github,
+        website: user.website,
+        provider: user.provider,
       };
     } catch (error) {
       throw error;

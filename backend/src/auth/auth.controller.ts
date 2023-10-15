@@ -60,7 +60,7 @@ export class AuthController {
   @ApiOkResponse({ type: AuthMeResponseDto })
   @ResponseMessage('Successfully get user data')
   async authMe(@Request() req: ExRequest): Promise<AuthMeResponse> {
-    this.logger.log(req.user);
-    return req.user as any;
+    const { _id } = req.user as { _id: string };
+    return this.authService.me(_id);
   }
 }
