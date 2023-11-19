@@ -252,10 +252,10 @@ export class AuthService {
         .exec();
 
       if (!token) {
-        throw new BadRequestException({
-          status_code: HttpStatus.BAD_REQUEST,
+        throw new UnauthorizedException({
+          status_code: HttpStatus.UNAUTHORIZED,
           message: 'Invalid token',
-          error: 'Bad Request',
+          error: 'Unauthorized',
         });
       }
 

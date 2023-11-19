@@ -7,6 +7,7 @@ export class LoginDto {
     type: String,
     description: 'Email or username',
     format: 'email',
+    examples: ['john@doe.com', 'johndoe'],
   })
   @IsNotEmpty()
   @IsString()
@@ -16,6 +17,7 @@ export class LoginDto {
     required: true,
     type: String,
     description: 'Password',
+    example: '123456',
   })
   @IsNotEmpty()
   @IsString()
